@@ -1,67 +1,78 @@
 // ignore_for_file: avoid_print
 
 import 'dart:io';
+
 import 'game.dart';
 
-void main(){
-  var game = Game(10000,"s",18);
+void main() {
   late GuessResult guessResult;
-  var l1 = line1();
+  var ask = '';
+
+  stdout.write('Enter a maxvalue number to random: ');
+  var max = stdin.readLineSync();
+  var maxRandom = int.tryParse(max!);
+
+  var game = Game(maxRandom);
+
+  print('╔══════════════════════════════════════════════════');
+  print('║                GUESS THE NUMBER                  ');
+  print('║──────────────────────────────────────────────────');
 
   do {
-    stdout.write('\u2551 Guess the number between 1 and 100 : ');
+    stdout.write('║  Guess the number between 1 and 100 : ');
+
     var input = stdin.readLineSync();
 
     if (input == null) {
       //print('Error, input is NULL');
       return;
     }
+
     var guess = int.tryParse(input);
 
     if (guess == null) {
-      //print('Invalid input, please enter numbers only');
+      //print('Input error, please enter numbers only');
       continue;
     }
-  guessResult = game.doGuess(guess);
 
-    if(guessResult == GuessResult.correct){
-      stdout.write('\u2551 \u27F6 $guess is CORRECT \u2665');
-      stdout.write(' total guesses : ${game.totalGuesses} \u26C4');
-      print('');
-      var l2 = line2();
-      var l3 = line3();
-    } else if(guessResult == GuessResult.tooHigh){
-      print('\u2551 \u27F6 $guess is TOO HIGH! \u25B2');
-      var l2 = line2();
-    }else {
-      print('\u2551 \u27F6 $guess is TOO LOW! \u25BC');
-      var l2 = line2();
+    guessResult = game.doGuess(guess);
+
+    if (guessResult == GuessResult.correct) {
+      Game.myList.add(game.totalGuesses);
+      print('║  ➜ $guess is CORRECT ❤, total guesses: ${game.totalGuesses}');
+      print('║──────────────────────────────────────────────────');
+      print('║                    THE END                       ');
+      print('╚══════════════════════════════════════════════════');
+    } else if (guessResult == GuessResult.tooHigh) {
+      print('║  ➜ $guess is TOO HIGH! ▲');
+      print('║──────────────────────────────────────────────────');
+    } else {
+      print('║  ➜ $guess is TOO LOW! ▼');
+      print('║──────────────────────────────────────────────────');
     }
-  } while (guessResult != GuessResult.correct);
-}
+    while (guessResult == GuessResult.correct) {
+      stdout.write('Play again? (Y/N): ');
+      ask = stdin.readLineSync()!;
 
-void line1() {
-  stdout.write('\u2554');
-  for (int i = 0; i < 50; i++) {
-    stdout.write('\u2550');
-  }
-  print('');
-  print('\u2551                 GUESS THE NUMBER');
-  var l2 = line2();
-}
+      if (ask == 'Y' || ask == 'y') {
+        stdout.write('Enter a maxvalue number to random: ');
+        max = stdin.readLineSync();
+        maxRandom = int.tryParse(max!);
 
-void line2() {
-  stdout.write('\u255F');
-  for (int i = 0; i < 50; i++) {
-    stdout.write('\u2500');
-  }
-  print('');
-}
+        game = Game(maxRandom);
 
-void line3() {
-  print('\u2551                  THE END  \u263B');
-  stdout.write('\u255A');
-  for (int i = 0; i < 50; i++) {
-    stdout.write('\u2550');
-  }
+        print('╔══════════════════════════════════════════════════');
+        print('║                GUESS THE NUMBER                  ');
+        print('║──────────────────────────────────────────────────');
+        break;
+      } else if (ask == 'N' || ask == 'n') {
+        print('You have played ${Game.myList.length} games');
+
+        for (int i = 0; i < Game.myList.length; i++) {
+          print('🚀 Game #${i + 1}: ${Game.myList[i]} guesses');
+        }
+        return;
+      }
+    }
+  } while (guessResult != GuessResult.correct || ask == 'Y' || ask == 'y');
 }
